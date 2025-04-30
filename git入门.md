@@ -70,3 +70,58 @@ git push origin master
 
 ### 2.6 查看本地代码分支——git branch
 ### 2.7 更新拉取代码——git pull
+
+## 3. 各阶段回退方法
+1. 情况一：工作区代码写错了，不想要了，回退到本地仓库版本
+```
+git checkout -- <filename>
+# <本地仓库/分支> => <当前工作区修改的内容/文件>覆盖掉
+```
+
+2. 情况二：工作区的代码已经add到暂存区，但是不想要了
+```
+git reset HEAD <filename>
+# 取消暂存,可以不加文件名
+```
+
+3. 情况三：错误commit提交了，本地分支main领先远程分支origin/main
+```
+git reset --hard <commit ID(前面几位就行)>
+# HEAD指针会指向最新的修改，这个操作是移动了HEAD指针，将本地仓库的内容回退
+git log
+# 提交历史（commit 历史），查看项目的正式提交记录
+git reflog
+# 所有 HEAD 的变动记录（包括 reset/rebase），查看你在本地做的所有操作轨迹，哪怕已被覆盖
+```
+
+4. **情况四**：如果将代码推送到远程仓库，如果错了就要挨骂了
+先回退到之前正确的版本，然后重新推送上去。
+```
+## !!!注意
+git push origin main
+# 本地回退一版之后，没有办法推送，因为你是落后于远程版本的所以
+git push -f origin main
+# 趁别人没有发现，快点提交了，如果别人在回退之前提交了，你就等着挨骂吧
+```
+
+5. 总结
+```
+git checkout -- <filename>
+git reset HEAD <filename>
+git reset --hard <commit ID(前面几位就行)>
+git reflog  # HEAD 的变动记录
+git push -f origin main
+git diff HEAD -- <file> # 查看工作区file文件和仓库中该文件最新版本的区别，代码合并可能才用
+```
+
+## 4. 代码冲突怎么解决(合作)
+每次开始工作前都可以拉取一下远程代码
+```
+git pull
+```
+合作开发，远程仓库已经被别人提交了一个版本，代码产生冲突
+git push origin main 报错
+这时需要重新拉取，再重新推送。
+
+需要手动解决的情况，改的是同一个地方(也会提示)。
+修改完，再提交。
