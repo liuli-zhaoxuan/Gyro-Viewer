@@ -125,3 +125,60 @@ git push origin main 报错
 
 需要手动解决的情况，改的是同一个地方(也会提示)。
 修改完，再提交。
+
+## git分支版本控制命令
+查看分支：
+```
+git branch
+git branch -r   #远程分支
+git branch -a   #远程和本地
+git branch -vv  #查看本地分支和远程分支追踪映射关系
+```
+创建新的分支：
+```
+git checkout -b <新分支名字>    #创建新的分支并切换，这个时候没有办法拉取远程的仓库，因为没有追踪
+git checkout <分支名>       #切换分支
+```
+在本地开发完分支功能，并且测试完，合并分支：
+```
+git merge <分支名>  #本地合并，合并完成就可以推送了
+git branch -d <分支名>  #合并完成就可以删掉
+git branch -D <分支名>  #不管合共是否，都可以删掉
+```
+将本地分支，指定推送到远程分支：
+```
+git push origin <本地分支名>:<远程分支名>
+```
+
+### 合并分支冲突
+需要手动解决：git pull  更新代码，再使用merge会使得合并冲突。
+修改冲突部分，把不相关信息删掉，然后推送上去。
+
+## git远程分支管理
+当工程一期结束后，再进行二期开发的时候，管理员可以将master分支关闭，让别人可以继续开发，但是不能推送。
+管理员，在github中创建新的分支，这样就可以实现一期工程的稳定性，同时还可以进行二期开发。
+作为开发人员，拉取最新的项目内容。
+然后在本地创建一个新分支，追踪对应远程分支：
+```
+git checkout -b <本地分支> origin/<远程分支>    #创建、切换、追踪
+git branch -u <远程仓库名origin>/<远程分支> #这条命令是指已经创建过分支，然后再将分支追踪关系
+git branch -vv  #查看追踪关系
+git push origin <远程分支>:<本地分支>   # 最好同名，这样的话可以去掉“<远程分支>:”
+```
+这之后，你新分支的拉取将会从远程新分支拉取，推送需要注意。
+
+## git实际工作流
+### 开发阶段
+1. 本地创建分支，追踪远程： git checkout -b feature/mydev origin/dev
+2. 经常拉取一下最新代码，保持最新代码与远程代码同步：git pull
+3. 在本地分支feature/mydev上开发代码:git add xxx, git commit -m "xxx"
+4. 把本地分支直接推动送到远程分支： git push origin feature/mydev   git push origin feature/mydev:feature/mydev_v1.0 （可以远程重名名，push之前一定要pull一下代码，解决冲突问题）。
+5. 推送完之后，代码评审工具：gitlab gerrit，  feature/mydev_v1.0就会发起一个对dev的MR：merge request，拉相应的人进行CR：code review；然后再修改；没问题了之后由代码负责人通过
+6. 删除个人推送的远程分支： git push origin (空)feature/mydev_v1.0
+
+### release阶段bug修改
+1. 本地建立分支、追踪：git checkout -b bugfix/mybug origin/release
+2. 修改bug： git add xxx git commit -m "xxx"
+3. 代码评审：git pull, 解决冲突再推送：git push origin bugfix/mybug
+4. 代码评审工具 bugfix/mybug => release MR  拉人CR merge => release分支上了
+5. 删除分支：git push origin  :bugfix/mybug
